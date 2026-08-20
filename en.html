@@ -449,6 +449,32 @@
   }
   .ticket .status:hover{ color:var(--brass); }
   .shows-more{ margin-top:30px; }
+  
+  
+  /* Bandsintown Widget */
+  .bandsintown-wrapper{
+    width:100%;
+    min-height:200px;
+  }
+  .bandsintown-wrapper .bit-widget-initializer{
+    display:block;
+    width:100%;
+  }
+
+  /* Instagram / Behold */
+  .behold-wrapper{
+    width:100%;
+    min-height:320px;
+  }
+  .behold-wrapper behold-widget{
+    display:block;
+    width:100%;
+  }
+  .instagram-follow{
+    margin-top:36px;
+    text-align:center;
+  }
+
   .shows-more a{
     font-family:'Space Mono', monospace;
     font-size:12.5px;
@@ -849,6 +875,7 @@
       <li><a href="#formacao">Lineup</a></li>
       <li><a href="#discografia">Discography</a></li>
       <li><a href="#agenda">Shows</a></li>
+      <li><a href="#instagram">Instagram</a></li>
       <li><a href="#contato">Contact</a></li>
       <li><a href="index.html" class="lang-switch" hreflang="pt-BR">PT</a></li>
     </ul>
@@ -864,6 +891,7 @@
   <a href="#formacao">Lineup</a>
   <a href="#discografia">Discography</a>
   <a href="#agenda">Shows</a>
+  <a href="#instagram">Instagram</a>
   <a href="#contato">Contact</a>
   <a href="index.html" hreflang="pt-BR">Português</a>
   <a class="menu-cta" href="https://wa.me/5521987270974?text=Hello!%20I%20would%20like%20to%20book%20a%20show%20with%20Acoustic%20N%27%20Roll." target="_blank" rel="noopener">Book on WhatsApp</a>
@@ -1045,6 +1073,7 @@
   </div>
 </section>
 
+
 <!-- ================= AGENDA ================= -->
 <section id="agenda">
   <div class="wrap">
@@ -1052,31 +1081,63 @@
       <div class="eyebrow">Shows</div>
       <h2>Upcoming shows</h2>
     </div>
-    <div class="shows-grid reveal-container">
-      <div class="ticket">
-        <div class="date">12 SEP</div>
-        <div class="day">Saturday</div>
-        <div class="place">Três Rios — RJ</div>
-        <div class="venue">Hotel Fazenda Bemposta</div>
-        <a class="status" href="https://www.bandsintown.com/e/108380036-acoustic-n'-roll-at-hotel-fazenda-bemposta" target="_blank" rel="noopener">Get tickets →</a>
-      </div>
-      <div class="ticket">
-        <div class="date">19 SEP</div>
-        <div class="day">Saturday</div>
-        <div class="place">Piraúba — MG</div>
-        <div class="venue">Free admission</div>
-        <a class="status" href="https://www.bandsintown.com/e/108407897-acoustic-n'-roll-at-pirauba-mg" target="_blank" rel="noopener">More details →</a>
-      </div>
-      <div class="ticket">
-        <div class="date">24 OCT</div>
-        <div class="day">Saturday</div>
-        <div class="place">Juiz de Fora — MG, Brazil</div>
-        <div class="venue">Cascatinha Country Club</div>
-        <a class="status" href="https://www.bandsintown.com/e/108407988-acoustic-n'-roll-at-cascatinha-country-club" target="_blank" rel="noopener">More details →</a>
-      </div>
+
+    <!-- Bandsintown Widget - updates automatically -->
+    <div class="bandsintown-wrapper reveal-container">
+      <script charset="utf-8" src="https://widgetv3.bandsintown.com/main.min.js"></script>
+      <a class="bit-widget-initializer"
+         data-artist-name="id_4545954"
+         data-display-local-dates="false"
+         data-display-past-dates="false"
+         data-auto-style="false"
+         data-text-color="#ece4d3"
+         data-link-color="#c9a227"
+         data-background-color="rgba(26,23,20,1)"
+         data-separator-color="rgba(201,162,39,0.22)"
+         data-popup-background-color="#1a1714"
+         data-display-limit="6"
+         data-display-start-time="true"
+         data-font="Helvetica"
+         data-link-text-color="#0b0b0c"
+         data-display-lineup="false"
+         data-display-play-my-city="false"
+         data-separator-color="rgba(201,162,39,0.22)"
+         data-display-details="false"
+         data-date-format="MMM Do"
+         data-display-logo="false"
+         data-language="en"
+         data-display-play-my-city="false">
+      </a>
     </div>
+
     <div class="shows-more">
       <a href="https://www.bandsintown.com/a/4545954-acoustic-n'-roll" target="_blank" rel="noopener">See full schedule on Bandsintown →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= INSTAGRAM ================= -->
+<section id="instagram">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Instagram</div>
+      <h2>Latest from our feed</h2>
+    </div>
+
+    <!-- 
+      BEHOLD.SO - Automatic Instagram feed
+      1. Create a free account at https://behold.so
+      2. Connect @acousticnrollofficial
+      3. Create a Widget (recommended: Flexible grid, 3 posts)
+      4. Copy the "feed-id" from the embed code
+      5. Paste it below replacing YOUR_FEED_ID_HERE
+    -->
+    <div class="behold-wrapper reveal-container">
+      <behold-widget feed-id="gbOE1a1QcP3FlIlBKJi5"></behold-widget>
+    </div>
+
+    <div class="instagram-follow">
+      <a class="btn btn-primary" href="https://www.instagram.com/acousticnrollofficial/" target="_blank" rel="noopener">Follow @acousticnrollofficial</a>
     </div>
   </div>
 </section>
@@ -1224,5 +1285,13 @@
 
 </script>
 
+  <script>
+    (() => {
+      const d = document, s = d.createElement("script");
+      s.type = "module";
+      s.src = "https://w.behold.so/widget.js";
+      d.head.append(s);
+    })();
+  </script>
 </body>
 </html>
