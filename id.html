@@ -367,6 +367,35 @@
   }
   .member-crew span{ color:var(--bone-dim); margin-right:12px; }
 
+  /* PLAYER DE FUNDO (playlist do Spotify) */
+  .bgp{ position:fixed; left:16px; bottom:16px; z-index:90; font-family:'Space Mono',monospace; }
+  .bgp-bar{ display:flex; align-items:center; gap:10px; padding:6px 8px 6px 6px; background:rgba(18,18,18,.92); border:1px solid var(--line); border-radius:999px; box-shadow:0 8px 24px rgba(0,0,0,.45); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); }
+  .bgp button{ appearance:none; -webkit-appearance:none; border:0; background:none; padding:0; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; color:#fff; }
+  .bgp button svg{ width:18px; height:18px; fill:currentColor; }
+  .bgp .bgp-play{ width:38px; height:38px; border-radius:50%; background:var(--brass); color:#111; transition:transform .2s, opacity .2s; }
+  .bgp .bgp-play:hover{ transform:scale(1.06); }
+  .bgp .bgp-play:disabled{ opacity:.55; cursor:default; transform:none; }
+  .bgp .i-pause{ display:none; }
+  .bgp.is-playing .i-play{ display:none; }
+  .bgp.is-playing .i-pause{ display:block; }
+  .bgp-eq{ display:inline-flex; align-items:flex-end; gap:2px; height:14px; }
+  .bgp-eq i{ display:block; width:3px; height:4px; background:var(--brass); border-radius:1px; }
+  .bgp.is-playing .bgp-eq i{ animation:bgpEq 1s ease-in-out infinite; }
+  .bgp.is-playing .bgp-eq i:nth-child(2){ animation-delay:.25s; }
+  .bgp.is-playing .bgp-eq i:nth-child(3){ animation-delay:.5s; }
+  @keyframes bgpEq{ 0%,100%{ height:4px; } 50%{ height:14px; } }
+  .bgp-label{ font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:#fff; white-space:nowrap; }
+  .bgp .bgp-expand{ width:30px; height:30px; border-radius:50%; border:1px solid var(--line); transition:border-color .2s; }
+  .bgp .bgp-expand:hover{ border-color:var(--brass); }
+  .bgp .bgp-expand svg{ transition:transform .25s; }
+  .bgp.is-open .bgp-expand svg{ transform:rotate(180deg); }
+  .bgp-panel{ position:absolute; left:0; bottom:calc(100% + 10px); width:min(340px, calc(100vw - 32px)); padding:8px; background:rgba(18,18,18,.96); border:1px solid var(--line); border-radius:14px; box-shadow:0 12px 32px rgba(0,0,0,.5); opacity:0; transform:translateY(8px); pointer-events:none; transition:opacity .25s, transform .25s; }
+  .bgp.is-open .bgp-panel{ opacity:1; transform:none; pointer-events:auto; }
+  .bgp-panel iframe{ display:block; width:100%; border:0; border-radius:12px; }
+  .bgp-fallback{ display:block; padding:14px; color:var(--brass-light); font-size:12px; letter-spacing:.08em; text-transform:uppercase; }
+  @media (max-width:640px){ .bgp{ left:12px; bottom:12px; } }
+  @media (prefers-reduced-motion:reduce){ .bgp.is-playing .bgp-eq i{ animation:none; height:10px; } }
+
   /* NOVIDADES (canal do WhatsApp) */
   .news{ padding:72px 0; text-align:center; border-bottom:1px solid var(--line); }
   .news h2{ font-size:clamp(26px,3.6vw,40px); color:var(--bone); margin:0; }
@@ -1516,5 +1545,55 @@
       d.head.append(s);
     })();
   </script>
+<div class="bgp" id="bgp" role="region" aria-label="Playlist band">
+  <div class="bgp-panel" id="bgp-panel" inert>
+    <div id="bgp-embed"><a class="bgp-fallback" href="https://open.spotify.com/playlist/78VWb101046ctFte4LGv56" target="_blank" rel="noopener">Buka di Spotify</a></div>
+  </div>
+  <div class="bgp-bar">
+    <button type="button" class="bgp-play" id="bgp-play" aria-label="Putar atau jeda playlist" aria-pressed="false" disabled>
+      <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+      <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+    </button>
+    <span class="bgp-eq" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span class="bgp-label">Playlist band</span>
+    <button type="button" class="bgp-expand" id="bgp-expand" aria-label="Tampilkan atau sembunyikan pemutar" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 14l5-5 5 5z"/></svg></button>
+  </div>
+</div>
+<script>
+/* Player de fundo: playlist do Spotify. Navegadores só liberam áudio depois do 1º clique/toque/tecla da pessoa,
+   então a música começa nessa primeira interação (a menos que ela tenha pausado antes, nesta aba). */
+(function(){
+  var URI = 'spotify:playlist:78VWb101046ctFte4LGv56';
+  var root = document.getElementById('bgp'); if (!root) return;
+  var playBtn = document.getElementById('bgp-play'), expBtn = document.getElementById('bgp-expand'), panel = document.getElementById('bgp-panel');
+  var ctrl = null, ready = false, playing = false, gestured = false, KEY = 'anr-bgm';
+  function store(v){ try { if (v === undefined) return sessionStorage.getItem(KEY); sessionStorage.setItem(KEY, v); } catch(e){} return null; }
+  function setPlaying(p){ playing = p; root.classList.toggle('is-playing', p); playBtn.setAttribute('aria-pressed', p ? 'true' : 'false'); }
+  function setOpen(o){ root.classList.toggle('is-open', o); expBtn.setAttribute('aria-expanded', o ? 'true' : 'false'); panel.inert = !o; }
+  function tryAutoplay(){ if (ctrl && ready && gestured && store() !== 'off' && !playing) ctrl.play(); }
+  expBtn.addEventListener('click', function(){ setOpen(!root.classList.contains('is-open')); });
+  playBtn.addEventListener('click', function(){
+    if (!ctrl || !ready) return;
+    if (playing) { ctrl.pause(); store('off'); } else { ctrl.play(); store('on'); }
+  });
+  function onGesture(e){
+    if (gestured) return; gestured = true;
+    ['click','keydown','touchend'].forEach(function(ev){ document.removeEventListener(ev, onGesture, true); });
+    if (!root.contains(e.target)) tryAutoplay();
+  }
+  ['click','keydown','touchend'].forEach(function(ev){ document.addEventListener(ev, onGesture, true); });
+  function load(){
+    window.onSpotifyIframeApiReady = function(api){
+      api.createController(document.getElementById('bgp-embed'), { uri: URI, width: '100%', height: 152 }, function(c){
+        ctrl = c;
+        c.addListener('ready', function(){ ready = true; playBtn.disabled = false; tryAutoplay(); });
+        c.addListener('playback_update', function(e){ setPlaying(!!(e && e.data && !e.data.isPaused)); });
+      });
+    };
+    var s = document.createElement('script'); s.src = 'https://open.spotify.com/embed/iframe-api/v1'; s.async = true; document.body.appendChild(s);
+  }
+  if (document.readyState === 'complete') setTimeout(load, 800); else window.addEventListener('load', function(){ setTimeout(load, 800); });
+})();
+</script>
 </body>
 </html>
